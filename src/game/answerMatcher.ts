@@ -12,6 +12,10 @@ export function normalizeAnswer(value: string): string {
     .replace(/\s+/g, ' ')
 }
 
+interface MatchCountryOptions {
+  requireFullLength?: boolean
+}
+
 function damerauLevenshtein(a: string, b: string): number {
   const matrix = Array.from({ length: a.length + 1 }, () => Array<number>(b.length + 1).fill(0))
   for (let i = 0; i <= a.length; i += 1) matrix[i][0] = i
@@ -32,7 +36,7 @@ function namesFor(country: Country): string[] {
   return [country.name, country.officialName, ...country.aliases].map(normalizeAnswer).filter(Boolean)
 }
 
-export function matchCountry(input: string, availableCountries: Country[]): Country | null {
+export function matchCountry(input: string, availableCountries: Country[], options: MatchCountryOptions = {}): Country | null {
   const normalized = normalizeAnswer(input)
   if (!normalized) return null
 
@@ -44,7 +48,13 @@ export function matchCountry(input: string, availableCountries: Country[]): Coun
   if (maxDistance === 0) return null
 
   const candidates = availableCountries
-    .map((country) => ({ country, distance: Math.min(...namesFor(country).map((name) => damerauLevenshtein(normalized, name))) }))
+    .map((country) => {
+      const eligibleNames = namesFor(country).filter((name) => !options.requireFullLength || normalized.length >= name.length)
+      return eligibleNames.length > 0
+        ? { country, distance: Math.min(...eligibleNames.map((name) => damerauLevenshtein(normalized, name))) }
+        : null
+    })
+    .filter((candidate): candidate is { country: Country; distance: number } => candidate !== null)
     .filter(({ distance }) => distance <= maxDistance)
     .sort((a, b) => a.distance - b.distance)
 

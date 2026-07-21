@@ -35,6 +35,24 @@ describe('answer matching', () => {
     expect(matchCountry('Untied States', countries)?.code).toBe('US')
   })
 
+  it('waits for the full name length during live typing', () => {
+    expect(matchCountry('Polan', countries, { requireFullLength: true })).toBeNull()
+    expect(matchCountry('Polnad', countries, { requireFullLength: true })?.code).toBe('PL')
+    expect(matchCountry('Central African Republi', countries, { requireFullLength: true })).toBeNull()
+    expect(matchCountry('Central African Repubilc', countries, { requireFullLength: true })?.code).toBe('CF')
+    expect(matchCountry('Bosnia and Herzegovin', countries, { requireFullLength: true })).toBeNull()
+    expect(matchCountry('Bosnia and Herzegovian', countries, { requireFullLength: true })?.code).toBe('BA')
+  })
+
+  it('allows a missing-letter typo when explicitly submitted', () => {
+    expect(matchCountry('Polad', countries, { requireFullLength: true })).toBeNull()
+    expect(matchCountry('Polad', countries)?.code).toBe('PL')
+    expect(matchCountry('United Arab Emirate', countries, { requireFullLength: true })).toBeNull()
+    expect(matchCountry('United Arab Emirate', countries)?.code).toBe('AE')
+    expect(matchCountry('Central African Repubic', countries, { requireFullLength: true })).toBeNull()
+    expect(matchCountry('Central African Repubic', countries)?.code).toBe('CF')
+  })
+
   it('rejects ambiguous near matches', () => {
     expect(matchCountry('Nigera', countries)).toBeNull()
     expect(matchCountry('Korea', countries)).toBeNull()
