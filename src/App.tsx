@@ -171,7 +171,7 @@ function App() {
               <div><span>{region}</span><h1 className="text-2xl font-bold">{mapFinished ? 'Quiz complete' : 'Name the countries'}</h1></div>
               <div className="ml-auto flex items-center gap-3"><Stat label="Found" value={`${guessedCodes.size}/${activeCountries.length}`} /><Stat label="Time" value={timed ? formatTime(secondsLeft) : 'Untimed'} /></div>
             </div>
-            <WorldMap activeCountries={activeCountries} guessedCodes={guessedCodes} revealedCodes={revealedCodes} />
+            <WorldMap region={region} activeCountries={activeCountries} guessedCodes={guessedCodes} revealedCodes={revealedCodes} />
             <div className="mx-auto mt-6 max-w-2xl">
               {!mapFinished ? <><label className="sr-only" htmlFor="country-answer">Country answer</label><input ref={answerInput} id="country-answer" className="answer-input" value={answer} onChange={(event) => updateAnswer(event.target.value)} placeholder="Start typing a country…" autoComplete="off" /><div className="mt-3 text-center"><button type="button" className="danger-button" onClick={() => { if (window.confirm('Give up and reveal every missed country?')) finishMap(true) }}>Give up and reveal</button></div></> : <Results guessed={guessedCodes.size} total={activeCountries.length} missed={activeCountries.filter((country) => !guessedCodes.has(country.code))} onAgain={startMap} onHome={() => setScreen('home')} />}
             </div>

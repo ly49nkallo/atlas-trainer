@@ -22,6 +22,14 @@ export function panView(view: MapView, deltaX: number, deltaY: number): MapView 
   return clampView({ ...view, x: view.x + deltaX, y: view.y + deltaY })
 }
 
+export function centeredView(scale: number, point: [number, number]): MapView {
+  return clampView({
+    scale,
+    x: mapWidth / 2 - point[0] * scale,
+    y: mapHeight / 2 - point[1] * scale,
+  })
+}
+
 export function zoomView(view: MapView, direction: number): MapView {
   const scale = Math.min(maxScale, Math.max(minScale, view.scale + direction * 0.4))
   if (scale === view.scale) return clampView(view)

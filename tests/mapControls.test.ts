@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { clampView, panView, zoomView } from '../src/map/mapControls'
+import { centeredView, clampView, panView, zoomView } from '../src/map/mapControls'
 
 describe('map viewport controls', () => {
   it('prevents the map from being dragged off-screen at minimum zoom', () => {
@@ -18,5 +18,9 @@ describe('map viewport controls', () => {
     let view = zoomed
     for (let index = 0; index < 20; index += 1) view = zoomView(view, -1)
     expect(view).toEqual({ scale: 1, x: 0, y: 0 })
+  })
+
+  it('centers a moderately zoomed view on a map point', () => {
+    expect(centeredView(1.7, [400, 200])).toEqual({ scale: 1.7, x: -180, y: -90 })
   })
 })

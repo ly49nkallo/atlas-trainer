@@ -1,24 +1,42 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { geoEqualEarth, geoPath } from 'd3-geo'
-import type { Country } from '../data/countries'
+import { geoCentroid, geoEqualEarth, geoPath } from 'd3-geo'
+import type { Continent, Country, RegionFilter } from '../data/countries'
 import { countriesByCode } from '../data/countries'
 import { worldFeatures } from './geography'
-import { clampView, mapHeight, mapWidth, panView, zoomView } from './mapControls'
+import { centeredView, clampView, mapHeight, mapWidth, panView, zoomView } from './mapControls'
 
 interface WorldMapProps {
   activeCountries: Country[]
   guessedCodes: Set<string>
   revealedCodes?: Set<string>
+  region: RegionFilter
 }
 
 const projection = geoEqualEarth().fitExtent([[12, 12], [988, 488]], { type: 'Sphere' })
 const pathGenerator = geoPath(projection)
 
-export function WorldMap({ activeCountries, guessedCodes, revealedCodes = new Set() }: WorldMapProps) {
-  const [view, setView] = useState({ scale: 1, x: 0, y: 0 })
+const continents = new Set<Continent>(['Africa', 'Asia', 'Europe', 'North America', 'South America', 'Oceania'])
+
+function initialView(region: RegionFilter, activeCountries: Country[]) {
+  if (!continents.has(region as Continent)) return { scale: 1, x: 0, y: 0 }
+  const points = activeCountries
+    .map((country) => projection([country.coordinates[1], country.coordinates[0]]))
+    .filter((point): point is [number, number] => Boolean(point))
+  if (!points.length) return { scale: 1, x: 0, y: 0 }
+  const center: [number, number] = [
+    points.reduce((sum, point) => sum + point[0], 0) / points.length,
+    points.reduce((sum, point) => sum + point[1], 0) / points.length,
+  ]
+  return centeredView(1.7, center)
+}
+
+export function WorldMap({ activeCountries, guessedCodes, revealedCodes = new Set(), region }: WorldMapProps) {
+  const [view, setView] = useState(() => initialView(region, activeCountries))
   const mapElement = useRef<SVGSVGElement>(null)
   const drag = useRef<{ x: number; y: number; originX: number; originY: number } | null>(null)
   const activeIds = new Map(activeCountries.map((country) => [country.numericId, country]))
+
+  useEffect(() => setView(initialView(region, activeCountries)), [region, activeCountries])
 
   function zoom(direction: number) {
     setView((current) => zoomView(current, direction))
@@ -100,6 +118,13 @@ export function WorldMap({ activeCountries, guessedCodes, revealedCodes = new Se
             const point = projection([country.coordinates[1], country.coordinates[0]])
             if (!point) return null
             return <circle key={country.code} cx={point[0]} cy={point[1]} r={4 / view.scale} className={guessedCodes.has(country.code) ? 'fill-green-300' : revealedCodes.has(country.code) ? 'fill-red-300' : 'fill-gray-600'}><title>{country.name}</title></circle>
+          })}
+          {activeCountries.filter((country) => revealedCodes.has(country.code)).map((country) => {
+            const feature = worldFeatures.find((item) => String(item.id).padStart(3, '0') === country.numericId)
+            const coordinates = feature ? geoCentroid(feature) : [country.coordinates[1], country.coordinates[0]]
+            const point = projection(coordinates as [number, number])
+            if (!point) return null
+            return <text key={`label-${country.code}`} x={point[0]} y={point[1]} textAnchor="middle" dominantBaseline="central" fontSize={12 / view.scale} fontWeight="700" stroke="white" strokeWidth={3 / view.scale} paintOrder="stroke" className="pointer-events-none fill-black">{country.name}</text>
           })}
         </g>
       </svg>
