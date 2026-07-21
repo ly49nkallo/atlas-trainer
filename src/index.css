@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+:root {
+  font-family: "Times New Roman", Times, serif;
+  color: #000;
+  background: #fff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: #fff;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+svg:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@layer components {
+  .primary-button,
+  .secondary-button,
+  .nav-button,
+  .danger-button,
+  .map-control {
+    @apply inline-flex items-center justify-center border border-black bg-white px-4 py-2 text-black;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .primary-button:hover,
+  .secondary-button:hover,
+  .nav-button:hover,
+  .danger-button:hover,
+  .map-control:hover {
+    @apply bg-gray-200;
+  }
+
+  .danger-button {
+    @apply border-red-800;
+  }
+
+  .panel {
+    @apply border border-black bg-white p-4;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .field-label {
+    @apply mb-2 block font-bold;
+  }
+
+  .choice {
+    @apply flex min-h-16 flex-col items-start justify-center border border-black bg-white px-3 py-2 text-left text-black;
+    border-radius: 0;
+  }
+
+  .choice:hover {
+    @apply bg-gray-100;
+  }
+
+  .choice span {
+    @apply mt-1 text-sm font-normal text-gray-700;
+  }
+
+  .choice.selected {
+    @apply bg-gray-300 font-bold text-black;
+    box-shadow: inset 0 0 0 1px #000;
+  }
+
+  .answer-input {
+    @apply w-full border-2 border-black bg-white px-4 py-3 text-xl text-black placeholder:text-gray-500 focus:outline-none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .memory-choice {
+    @apply flex min-h-28 items-center justify-center border border-black bg-white p-3 text-center text-black;
+    border-radius: 0;
+  }
+
+  .memory-choice:hover {
+    @apply bg-gray-100;
+  }
+
+  .memory-choice.correct {
+    @apply bg-green-100;
+  }
+
+  .memory-choice.wrong {
+    @apply bg-red-100;
+  }
+
+  .select-control {
+    @apply border border-black bg-white px-3 py-2 text-black;
+    border-radius: 0;
+  }
+
+  .eyebrow {
+    @apply text-sm font-normal text-black;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+}
