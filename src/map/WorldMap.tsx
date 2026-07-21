@@ -143,7 +143,7 @@ export function WorldMap({ activeCountries, guessedCodes, revealedCodes = new Se
             if (!point) return null
             return <circle key={country.code} cx={point[0]} cy={point[1]} r={4 / view.scale} className={guessedCodes.has(country.code) ? 'fill-green-300' : revealedCodes.has(country.code) ? 'fill-red-300' : 'fill-gray-600'}><title>{country.name}</title></circle>
           })}
-          {activeCountries.filter((country) => revealedCodes.has(country.code)).map((country) => {
+          {activeCountries.filter((country) => guessedCodes.has(country.code) || revealedCodes.has(country.code)).map((country) => {
             const feature = worldFeatures.find((item) => String(item.id).padStart(3, '0') === country.numericId)
             const coordinates = feature ? geoCentroid(feature) : [country.coordinates[1], country.coordinates[0]]
             const point = projection(coordinates as [number, number])
