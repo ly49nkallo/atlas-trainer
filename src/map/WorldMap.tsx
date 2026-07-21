@@ -17,6 +17,30 @@ const pathGenerator = geoPath(projection)
 
 const continents = new Set<Continent>(['Africa', 'Asia', 'Europe', 'North America', 'South America', 'Oceania'])
 
+// Screen-pixel offsets for labels whose geographic centers are too close together.
+const labelOffsets: Record<string, [number, number]> = {
+  PS: [-5, 7],
+  IL: [-6, -12],
+  JO: [8, 5],
+  AM: [-4, -6],
+  AZ: [5, 6],
+  BH: [0, -6],
+  HT: [-6, -5],
+  DO: [7, 5],
+  KN: [0, -5],
+  AG: [0, 5],
+  IE: [0, 2],
+  LI: [-5, -5],
+  SM: [0, 4],
+  RS: [0, -6],
+  AL: [0, 3],
+  XK: [0, 7],
+  GA: [-7, -5],
+  CG: [9, 5],
+  LS: [0, 5],
+  ST: [0, 3],
+}
+
 function initialView(region: RegionFilter, activeCountries: Country[]) {
   if (!continents.has(region as Continent)) return { scale: 1, x: 0, y: 0 }
   const points = activeCountries
@@ -124,7 +148,8 @@ export function WorldMap({ activeCountries, guessedCodes, revealedCodes = new Se
             const coordinates = feature ? geoCentroid(feature) : [country.coordinates[1], country.coordinates[0]]
             const point = projection(coordinates as [number, number])
             if (!point) return null
-            return <text key={`label-${country.code}`} x={point[0]} y={point[1]} textAnchor="middle" dominantBaseline="central" fontSize={12 / view.scale} fontWeight="700" stroke="white" strokeWidth={3 / view.scale} paintOrder="stroke" className="pointer-events-none fill-black">{country.name}</text>
+            const [offsetX, offsetY] = labelOffsets[country.code] ?? [0, 0]
+            return <text key={`label-${country.code}`} x={point[0] + offsetX / view.scale} y={point[1] + offsetY / view.scale} textAnchor="middle" dominantBaseline="central" fontSize={12 / view.scale} fontWeight="700" stroke="white" strokeWidth={3 / view.scale} paintOrder="stroke" className="pointer-events-none fill-black">{country.name}</text>
           })}
         </g>
       </svg>
